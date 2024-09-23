@@ -25,7 +25,11 @@ replay_pid*
 
 # Gradle
 **/.gradle
+**/build
 
 # General
 .DS_Store
 .idea
+
+# Project
+/db
