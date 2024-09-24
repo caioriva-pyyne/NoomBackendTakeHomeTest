@@ -2,6 +2,8 @@ package com.noom.interview.fullstack.sleep.service;
 
 import com.noom.interview.fullstack.sleep.exception.ResourceNotFoundException;
 import com.noom.interview.fullstack.sleep.model.dto.request.SleepLogCreateRequest;
+import com.noom.interview.fullstack.sleep.model.dto.response.SleepLogLastDaysAverageResponse;
+import com.noom.interview.fullstack.sleep.model.entity.AfterSleepFeeling;
 import com.noom.interview.fullstack.sleep.model.entity.SleepLog;
 import com.noom.interview.fullstack.sleep.model.entity.User;
 import com.noom.interview.fullstack.sleep.repository.SleepLogRepository;
@@ -12,6 +14,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -77,11 +81,56 @@ public class SleepLogServiceImpl implements SleepLogService {
         return sleepLog;
     }
 
+    // It's also possible to create a native query and execute most part of the logic in the DB.
+    // Decided to make in the Java code for the sake of the test, though.
+    @Override
+    public SleepLogLastDaysAverageResponse getLastDaysAverage(UUID userId, Integer numOfDays) {
+        LocalDate endDate = LocalDate.now().minusDays(1);
+        LocalDate startDate = endDate.minusDays(numOfDays);
+        var totalTimeInBed = 0L;
+        var totalTimeInBedStartInSeconds = 0L;
+        var totalTimeInBedEndInSeconds = 0L;
+        var feelingFrequencies = new HashMap<AfterSleepFeeling, Integer>();
+        feelingFrequencies.put(AfterSleepFeeling.OK, 0);
+        feelingFrequencies.put(AfterSleepFeeling.BAD, 0);
+        feelingFrequencies.put(AfterSleepFeeling.GOOD, 0);
+
+        User user = userService.getUser(userId);
+        List<SleepLog> sleepLogs = sleepLogRepository.findAllByUserAndSleepDateBetween(user, startDate, endDate);
+
+        if (sleepLogs.isEmpty()) {
+            throw new ResourceNotFoundException("No sleep logs found for the last " + numOfDays + " days for user with id " + user.getId());
+        }
+
+        for (var sleepLog : sleepLogs) {
+            totalTimeInBed += sleepLog.getTotalTimeInBedInSeconds();
+            totalTimeInBedStartInSeconds += sleepLog.getTimeInBedStart().toSecondOfDay();
+            totalTimeInBedEndInSeconds += sleepLog.getTimeInBedEnd().toSecondOfDay();
+            feelingFrequencies.put(
+                    sleepLog.getFeeling(),
+                    feelingFrequencies.get(sleepLog.getFeeling()) + 1
+            );
+        }
+
+        var count = sleepLogs.size();
+        return SleepLogLastDaysAverageResponse
+                .builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .averageTotalTimeInBed(Duration.ofSeconds(totalTimeInBed / count))
+                .averageTimeInBedStart(LocalTime.ofSecondOfDay(totalTimeInBedStartInSeconds / count))
+                .averageTimeInBedEnd(LocalTime.ofSecondOfDay(totalTimeInBedEndInSeconds / count))
+                .feelingFrequencies(feelingFrequencies)
+                .build();
+    }
+
     private LocalDate defineSleepDate(LocalDateTime sleepStart, LocalDateTime sleepEnd) {
         LocalDate sleepDate = sleepStart.toLocalDate();
 
         if(sleepStart.toLocalDate().equals(sleepEnd.toLocalDate()))  {
             if(!sleepStart.toLocalTime().isBefore(LocalTime.MIDNIGHT)) {
+                // In case the user started sleeping after midnight we still consider
+                // the previous day as the sleep date
                 sleepDate = sleepStart.toLocalDate().minusDays(1);
             }
         }

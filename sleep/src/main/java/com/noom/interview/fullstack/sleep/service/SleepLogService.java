@@ -1,6 +1,7 @@
 package com.noom.interview.fullstack.sleep.service;
 
 import com.noom.interview.fullstack.sleep.model.dto.request.SleepLogCreateRequest;
+import com.noom.interview.fullstack.sleep.model.dto.response.SleepLogLastDaysAverageResponse;
 import com.noom.interview.fullstack.sleep.model.entity.SleepLog;
 
 import java.util.UUID;
@@ -21,8 +22,16 @@ public interface SleepLogService {
     /**
      * Gets last night sleep log.
      *
-     * @param user the id of the user associated to the log
+     * @param userId the id of the user associated to the log
      * @return the last night sleep log
      */
     SleepLog getLastNightSleepLog(UUID userId);
+
+    /**
+     * Gets average for last days of sleep logs.
+     *
+     * @param userId the user id
+     * @param numOfDays the number of the days when calculating the average
+     */
+    SleepLogLastDaysAverageResponse getLastDaysAverage(UUID userId, Integer numOfDays);
 }

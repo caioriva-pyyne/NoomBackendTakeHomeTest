@@ -2,6 +2,7 @@ package com.noom.interview.fullstack.sleep.controller;
 
 import com.noom.interview.fullstack.sleep.exception.BadRequestException;
 import com.noom.interview.fullstack.sleep.model.dto.request.SleepLogCreateRequest;
+import com.noom.interview.fullstack.sleep.model.dto.response.SleepLogLastDaysAverageResponse;
 import com.noom.interview.fullstack.sleep.model.dto.response.SleepLogResponse;
 import com.noom.interview.fullstack.sleep.model.entity.SleepLog;
 import com.noom.interview.fullstack.sleep.service.SleepLogService;
@@ -10,9 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.Duration;
 import java.util.UUID;
+
+// TODO Add tests
+// TODO Update README
 
 /**
  * Spring controller for sleep log related requests.
@@ -32,6 +39,7 @@ public class SleepLogController {
      * Creates a sleep log.
      *
      * @param request data to create the sleep log
+     * @param userId the user id
      * @return the created sleep log
      */
     @PostMapping
@@ -61,17 +69,40 @@ public class SleepLogController {
     /**
      * Gets last night sleep log.
      *
+     * @param userId the user id
      * @return the last night sleep log
      */
     @GetMapping("/last-night")
     @ResponseStatus(value = HttpStatus.OK)
     public SleepLogResponse getLastNightSleepLog(
             @RequestParam
+            @NotNull
             @Pattern(regexp = VALID_UUID_FORMAT,
                     message = "'userId' should be in a valid UUID format") UUID userId
     ) {
         SleepLog sleepLog = sleepLogService.getLastNightSleepLog(userId);
         return createSleepLogResponse(sleepLog);
+    }
+
+    /**
+     * Gets average for last days of sleep logs.
+     *
+     * @param userId the user id
+     * @param numOfDays the number of the days when calculating the average. Defaults to 30
+     * @return the response for the average of the last days of sleep logs
+     */
+    @GetMapping("/last-days-average")
+    @ResponseStatus(value = HttpStatus.OK)
+    public SleepLogLastDaysAverageResponse getLastDaysAverageSleepLog(
+            @RequestParam
+            @NotNull
+            @Pattern(regexp = VALID_UUID_FORMAT,
+                    message = "'userId' should be in a valid UUID format") UUID userId,
+            @RequestParam(defaultValue = "30")
+            @Min(30) @Max(3652) Integer numOfDays
+
+    ) {
+        return sleepLogService.getLastDaysAverage(userId, numOfDays);
     }
 
     private SleepLogResponse createSleepLogResponse(SleepLog sleepLog) {

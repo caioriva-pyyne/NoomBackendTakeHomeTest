@@ -14,5 +14,5 @@ import java.util.UUID;
 public interface SleepLogRepository extends JpaRepository<SleepLog, UUID> {
     Optional<SleepLog> findBySleepDateAndUser(LocalDate sleepDate, User user);
 
-    List<SleepLog> findAllBySleepDateBetween(LocalDate startDate, LocalDate endDate);
+    List<SleepLog> findAllByUserAndSleepDateBetween(User user, LocalDate startDate, LocalDate endDate);
 }
