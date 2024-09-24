@@ -1,0 +1,152 @@
+{
+	"info": {
+		"_postman_id": "12e0f2ff-eb71-4137-8774-401cd9a00fce",
+		"name": "Noom Backend Take Home Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4633349",
+		"_collection_link": "https://mimic-mania.postman.co/workspace/mimic-mania~eb72e477-de41-4eba-9e5c-bc1c8e15e81d/collection/4633349-12e0f2ff-eb71-4137-8774-401cd9a00fce?action=share&source=collection_link&creator=4633349"
+	},
+	"item": [
+		{
+			"name": "Create Sleep Log",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"startDateTimeInBed\": \"2024-09-21T22:30:00\",\n    \"endDateTimeInBed\":  \"2024-09-22T06:30:00\",\n    \"feeling\": \"BAD\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/sleep?userId=37827c5f-04a5-4099-8f88-1f709ab5e221",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"sleep"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "37827c5f-04a5-4099-8f88-1f709ab5e221"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Caio Riva\",\n    \"email\": \"caio.riva@email.com\",\n    \"age\": 27\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/user",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Night Sleep Log",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/sleep/last-night?userId=37827c5f-04a5-4099-8f88-1f709ab5e221",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"sleep",
+						"last-night"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "37827c5f-04a5-4099-8f88-1f709ab5e221"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Days Average Sleep Logs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/api/sleep/last-days-average?userId=37827c5f-04a5-4099-8f88-1f709ab5e221&numOfDays=20000",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"sleep",
+						"last-days-average"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "37827c5f-04a5-4099-8f88-1f709ab5e221"
+						},
+						{
+							"key": "numOfDays",
+							"value": "20000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "localhost:8080",
+			"type": "string"
+		}
+	]
+}
