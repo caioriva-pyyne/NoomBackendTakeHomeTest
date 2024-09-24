@@ -17,7 +17,7 @@ public interface SleepLogService {
      * @param userId the id of the user to associate the sleep log
      * @return the created sleep log
      */
-    SleepLog createSleepLog(SleepLogCreateRequest request, UUID userId);
+    SleepLog upsertSleepLog(SleepLogCreateRequest request, UUID userId);
 
     /**
      * Gets last night sleep log.
