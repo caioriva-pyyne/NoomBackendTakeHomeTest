@@ -31,12 +31,11 @@ public class SleepLogServiceImpl implements SleepLogService {
     }
 
     @Override
-    public SleepLog createSleepLog(SleepLogCreateRequest request, UUID userId) {
+    public SleepLog upsertSleepLog(SleepLogCreateRequest request, UUID userId) {
         User user = userService.getUser(userId);
         LocalDateTime start = request.getStartDateTimeInBed();
         LocalDateTime end = request.getEndDateTimeInBed();
         LocalDate sleepDate = defineSleepDate(start, end);
-        Long totalSleepDurationInSeconds = Duration.between(start, end).toSeconds();
         SleepLog sleepLog;
 
         // Logs with the same date will be replaced by the most recent one.
@@ -47,17 +46,15 @@ public class SleepLogServiceImpl implements SleepLogService {
         if (existentSleepLog.isPresent()) {
             sleepLog = existentSleepLog.get();
             sleepLog.setSleepDate(sleepDate);
-            sleepLog.setTimeInBedStart(start.toLocalTime());
-            sleepLog.setTimeInBedEnd(end.toLocalTime());
-            sleepLog.setTotalTimeInBedInSeconds(totalSleepDurationInSeconds);
+            sleepLog.setDateTimeInBedStart(start);
+            sleepLog.setDateTimeInBedEnd(end);
             sleepLog.setFeeling(request.getFeeling());
         } else {
             sleepLog = SleepLog
                     .builder()
                     .sleepDate(sleepDate)
-                    .timeInBedStart(start.toLocalTime())
-                    .timeInBedEnd(end.toLocalTime())
-                    .totalTimeInBedInSeconds(totalSleepDurationInSeconds)
+                    .dateTimeInBedStart(start)
+                    .dateTimeInBedEnd(end)
                     .feeling(request.getFeeling())
                     .user(user)
                     .build();
@@ -103,9 +100,12 @@ public class SleepLogServiceImpl implements SleepLogService {
         }
 
         for (var sleepLog : sleepLogs) {
-            totalTimeInBed += sleepLog.getTotalTimeInBedInSeconds();
-            totalTimeInBedStartInSeconds += sleepLog.getTimeInBedStart().toSecondOfDay();
-            totalTimeInBedEndInSeconds += sleepLog.getTimeInBedEnd().toSecondOfDay();
+            LocalDateTime start = sleepLog.getDateTimeInBedStart();
+            LocalDateTime end = sleepLog.getDateTimeInBedEnd();
+
+            totalTimeInBed += Duration.between(start, end).toSeconds();;
+            totalTimeInBedStartInSeconds += start.toLocalTime().toSecondOfDay();
+            totalTimeInBedEndInSeconds += end.toLocalTime().toSecondOfDay();
             feelingFrequencies.put(
                     sleepLog.getFeeling(),
                     feelingFrequencies.get(sleepLog.getFeeling()) + 1

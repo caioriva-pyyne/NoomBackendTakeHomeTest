@@ -52,13 +52,14 @@ public class SleepLogController {
     ) {
         var start = request.getStartDateTimeInBed();
         var end = request.getEndDateTimeInBed();
-
-        if (end.toLocalDate().isAfter(start.toLocalDate().plusDays(2)) ||
-                end.toLocalDate().isBefore(start.toLocalDate())) {
+        var startDatePlus2Days = start.toLocalDate().plusDays(2);
+        if (!end.toLocalDate().isBefore(startDatePlus2Days)) {
             throw new BadRequestException("Difference in days between 'startDateTimeInBed' and 'endDateTimeInBed' must be zero or one");
+        } else if (end.toLocalDate().isBefore(start.toLocalDate())) {
+            throw new BadRequestException("'startDateTimeInBed' must be before 'endDateTimeInBed'");
         }
 
-        SleepLog sleepLog = sleepLogService.createSleepLog(request, userId);
+        SleepLog sleepLog = sleepLogService.upsertSleepLog(request, userId);
 
         // Even though the DTO is similar to the entity, using it helps with
         // separating the app's internal model from the API contract. Changing
@@ -108,9 +109,9 @@ public class SleepLogController {
     private SleepLogResponse createSleepLogResponse(SleepLog sleepLog) {
         return new SleepLogResponse(
                 sleepLog.getSleepDate(),
-                sleepLog.getTimeInBedStart(),
-                sleepLog.getTimeInBedEnd(),
-                Duration.ofSeconds(sleepLog.getTotalTimeInBedInSeconds()),
+                sleepLog.getDateTimeInBedStart().toLocalTime(),
+                sleepLog.getDateTimeInBedEnd().toLocalTime(),
+                Duration.between(sleepLog.getDateTimeInBedStart(), sleepLog.getDateTimeInBedEnd()),
                 sleepLog.getFeeling()
         );
     }

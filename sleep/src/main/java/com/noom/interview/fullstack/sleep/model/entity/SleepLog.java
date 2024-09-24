@@ -1,10 +1,22 @@
 package com.noom.interview.fullstack.sleep.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -23,13 +35,10 @@ public class SleepLog {
     private LocalDate sleepDate;
 
     @Column(nullable = false)
-    private LocalTime timeInBedStart;
+    private LocalDateTime dateTimeInBedStart;
 
     @Column(nullable = false)
-    private LocalTime timeInBedEnd;
-
-    @Column(nullable = false)
-    private Long totalTimeInBedInSeconds;
+    private LocalDateTime dateTimeInBedEnd;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

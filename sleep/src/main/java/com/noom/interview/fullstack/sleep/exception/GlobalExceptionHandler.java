@@ -37,6 +37,20 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, Collections.singletonList(ex.getMessage()));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleException(BadRequestException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, Collections.singletonList(ex.getMessage()));
+    }
+
+    // Generic Exception handler to catch all other exceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
+        // In a real case scenario a better logging tool should be used (e.g. SLF4J, Apache Commons Logging)
+        System.err.println(ex.getMessage());
+        System.err.println(ex.getStackTrace());
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, Collections.singletonList("An unexpected error occurred."));
+    }
+
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, List<String> errorMessages) {
         return new ResponseEntity<>(new ErrorResponse(status, Instant.now(), errorMessages), new HttpHeaders(), status);
     }
