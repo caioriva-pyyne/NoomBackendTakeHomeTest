@@ -31,8 +31,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,7 +60,7 @@ public class SleepLogControllerTests {
         when(sleepLogService.upsertSleepLog(any(), any())).thenReturn(sleepLog);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", userId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -84,7 +83,7 @@ public class SleepLogControllerTests {
         String requestBody = objectMapper.writeValueAsString(jsonNode);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", "invalid-uuid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -109,7 +108,7 @@ public class SleepLogControllerTests {
         String requestBody = objectMapper.writeValueAsString(jsonNode);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", userId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
