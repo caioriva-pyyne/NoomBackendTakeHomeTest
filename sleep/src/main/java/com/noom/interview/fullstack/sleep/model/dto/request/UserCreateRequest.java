@@ -2,14 +2,13 @@ package com.noom.interview.fullstack.sleep.model.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
+// In a real case scenario, fields like password and username should be present a validated
 @Getter
+@Setter
 public class UserCreateRequest {
     @JsonProperty
     @NotBlank

@@ -14,7 +14,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -46,9 +45,7 @@ public class SleepLogController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public SleepLogResponse createSleepLog(
             @RequestBody @Valid SleepLogCreateRequest request,
-            @RequestParam
-            @Pattern(regexp = VALID_UUID_FORMAT,
-                    message = "'userId' should be in a valid UUID format") UUID userId
+            @RequestParam @NotNull UUID userId
     ) {
         var start = request.getStartDateTimeInBed();
         var end = request.getEndDateTimeInBed();
@@ -76,10 +73,7 @@ public class SleepLogController {
     @GetMapping("/last-night")
     @ResponseStatus(value = HttpStatus.OK)
     public SleepLogResponse getLastNightSleepLog(
-            @RequestParam
-            @NotNull
-            @Pattern(regexp = VALID_UUID_FORMAT,
-                    message = "'userId' should be in a valid UUID format") UUID userId
+            @RequestParam @NotNull UUID userId
     ) {
         SleepLog sleepLog = sleepLogService.getLastNightSleepLog(userId);
         return createSleepLogResponse(sleepLog);
@@ -95,12 +89,8 @@ public class SleepLogController {
     @GetMapping("/last-days-average")
     @ResponseStatus(value = HttpStatus.OK)
     public SleepLogLastDaysAverageResponse getLastDaysAverageSleepLog(
-            @RequestParam
-            @NotNull
-            @Pattern(regexp = VALID_UUID_FORMAT,
-                    message = "'userId' should be in a valid UUID format") UUID userId,
-            @RequestParam(defaultValue = "30")
-            @Min(30) @Max(3652) Integer numOfDays
+            @RequestParam @NotNull UUID userId,
+            @RequestParam(defaultValue = "30") @Min(30) @Max(3652) Integer numOfDays
 
     ) {
         return sleepLogService.getLastDaysAverage(userId, numOfDays);

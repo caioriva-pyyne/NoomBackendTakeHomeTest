@@ -21,13 +21,20 @@ import java.util.UUID;
 
 @Service
 public class SleepLogServiceImpl implements SleepLogService {
+    private static final Integer TOTAL_SECONDS_OF_A_DAY = 86400;
     private final SleepLogRepository sleepLogRepository;
     private final UserService userService;
+    private final TimeManagementService timeManagementService;
 
     @Autowired
-    public SleepLogServiceImpl(SleepLogRepository sleepLogRepository, UserService userService) {
+    public SleepLogServiceImpl(
+            SleepLogRepository sleepLogRepository,
+            UserService userService,
+            TimeManagementService timeManagementService)
+    {
         this.sleepLogRepository = sleepLogRepository;
         this.userService = userService;
+        this.timeManagementService = timeManagementService;
     }
 
     @Override
@@ -71,7 +78,7 @@ public class SleepLogServiceImpl implements SleepLogService {
         // the user can change it to a day after a day without sleep. In this case, a NotFound
         // response will be returned as it's expected that the day won't have a sleep log.
         SleepLog sleepLog = sleepLogRepository
-                .findBySleepDateAndUser(LocalDate.now().minusDays(1), user)
+                .findBySleepDateAndUser(timeManagementService.getCurrentDay().minusDays(1), user)
                 .orElseThrow(() -> new ResourceNotFoundException("No last night sleep log found for user with id " + user.getId()));
         sleepLog.setSleepDate(sleepLog.getSleepDate());
 
@@ -82,10 +89,13 @@ public class SleepLogServiceImpl implements SleepLogService {
     // Decided to make in the Java code for the sake of the test, though.
     @Override
     public SleepLogLastDaysAverageResponse getLastDaysAverage(UUID userId, Integer numOfDays) {
-        LocalDate endDate = LocalDate.now().minusDays(1);
+        LocalDate endDate = timeManagementService.getCurrentDay().minusDays(1);
         LocalDate startDate = endDate.minusDays(numOfDays);
         var totalTimeInBed = 0L;
-        var totalTimeInBedStartInSeconds = 0L;
+        var startAverageAfterMidnight = 0L;
+        var countStartAfterMidnight = 0;
+        var countStartBeforeMidnight = 0;
+        var startAverageBeforeMidnight = 0L;
         var totalTimeInBedEndInSeconds = 0L;
         var feelingFrequencies = new HashMap<AfterSleepFeeling, Integer>();
         feelingFrequencies.put(AfterSleepFeeling.OK, 0);
@@ -103,13 +113,31 @@ public class SleepLogServiceImpl implements SleepLogService {
             LocalDateTime start = sleepLog.getDateTimeInBedStart();
             LocalDateTime end = sleepLog.getDateTimeInBedEnd();
 
-            totalTimeInBed += Duration.between(start, end).toSeconds();;
-            totalTimeInBedStartInSeconds += start.toLocalTime().toSecondOfDay();
+            if (!start.isBefore(end.toLocalDate().atStartOfDay())) {
+                countStartAfterMidnight++;
+                startAverageAfterMidnight += start.toLocalTime().toSecondOfDay();
+            } else {
+                countStartBeforeMidnight++;
+                startAverageBeforeMidnight += start.toLocalTime().toSecondOfDay();
+            }
+
+            totalTimeInBed += Duration.between(start, end).toSeconds();
             totalTimeInBedEndInSeconds += end.toLocalTime().toSecondOfDay();
             feelingFrequencies.put(
                     sleepLog.getFeeling(),
                     feelingFrequencies.get(sleepLog.getFeeling()) + 1
             );
+        }
+
+        // This is necessary because start date can be after midnight. Calculating a regular
+        // average for all times without considering that will cause the average to be incorrect
+        var totalTimeInBedStartInSeconds = (startAverageAfterMidnight / countStartAfterMidnight)
+                + (startAverageBeforeMidnight / countStartBeforeMidnight);
+
+        // If the total of seconds is greater than the seconds of a day, it means the average is after
+        // midnight
+        if(totalTimeInBedStartInSeconds > TOTAL_SECONDS_OF_A_DAY) {
+            totalTimeInBedStartInSeconds = totalTimeInBedStartInSeconds - TOTAL_SECONDS_OF_A_DAY;
         }
 
         var count = sleepLogs.size();
@@ -118,7 +146,7 @@ public class SleepLogServiceImpl implements SleepLogService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .averageTotalTimeInBed(Duration.ofSeconds(totalTimeInBed / count))
-                .averageTimeInBedStart(LocalTime.ofSecondOfDay(totalTimeInBedStartInSeconds / count))
+                .averageTimeInBedStart(LocalTime.ofSecondOfDay(totalTimeInBedStartInSeconds))
                 .averageTimeInBedEnd(LocalTime.ofSecondOfDay(totalTimeInBedEndInSeconds / count))
                 .feelingFrequencies(feelingFrequencies)
                 .build();

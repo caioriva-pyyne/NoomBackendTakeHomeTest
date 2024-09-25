@@ -5,6 +5,7 @@ import com.noom.interview.fullstack.sleep.model.entity.AfterSleepFeeling;
 import com.noom.interview.fullstack.sleep.validator.annotation.NotAFutureDateTime;
 import com.noom.interview.fullstack.sleep.validator.annotation.WithTimeGreaterOrLesserThan;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 public class SleepLogCreateRequest {
     private static final String VALID_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 

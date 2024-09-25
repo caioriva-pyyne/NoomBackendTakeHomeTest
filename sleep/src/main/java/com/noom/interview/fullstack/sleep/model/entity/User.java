@@ -1,19 +1,13 @@
 package com.noom.interview.fullstack.sleep.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity(name = "app_user")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
