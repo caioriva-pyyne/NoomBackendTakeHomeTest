@@ -50,7 +50,7 @@ public class SleepLogControllerTests {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void createSleepLog_withValidData_returns201() throws Exception {
+    public void upsertSleepLog_withValidData_returns201() throws Exception {
         // Arrange
         ObjectNode jsonNode = objectMapper.createObjectNode();
         jsonNode.put("startDateTimeInBed", "2024-09-21T22:00:00");
@@ -74,7 +74,7 @@ public class SleepLogControllerTests {
     }
 
     @Test
-    public void createSleepLog_withInvalidUUID_returns400() throws Exception {
+    public void upsertSleepLog_withInvalidUUID_returns400() throws Exception {
         // Arrange
         ObjectNode jsonNode = objectMapper.createObjectNode();
         jsonNode.put("startDateTimeInBed", "2024-09-21T22:00:00");
@@ -93,7 +93,7 @@ public class SleepLogControllerTests {
 
     @ParameterizedTest
     @MethodSource("provideInvalidSleepLogRequests")
-    public void createSleepLog_withInvalidData_returns400(
+    public void upsertSleepLog_withInvalidData_returns400(
             LocalDateTime start,
             LocalDateTime end,
             String feeling,
