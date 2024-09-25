@@ -11,11 +11,11 @@ import java.util.UUID;
  */
 public interface SleepLogService {
     /**
-     * Creates a sleep log.
+     * Creates a sleep log or updates one if log for the same date already exists for the specified user.
      *
-     * @param request data to create the sleep log
+     * @param request data to create or update the sleep log
      * @param userId the id of the user to associate the sleep log
-     * @return the created sleep log
+     * @return the created or updated sleep log
      */
     SleepLog upsertSleepLog(SleepLogCreateRequest request, UUID userId);
 

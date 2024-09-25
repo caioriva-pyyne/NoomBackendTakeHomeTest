@@ -31,8 +31,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,7 +50,7 @@ public class SleepLogControllerTests {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void createSleepLog_withValidData_returns201() throws Exception {
+    public void upsertSleepLog_withValidData_returns201() throws Exception {
         // Arrange
         ObjectNode jsonNode = objectMapper.createObjectNode();
         jsonNode.put("startDateTimeInBed", "2024-09-21T22:00:00");
@@ -61,7 +60,7 @@ public class SleepLogControllerTests {
         when(sleepLogService.upsertSleepLog(any(), any())).thenReturn(sleepLog);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", userId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -75,7 +74,7 @@ public class SleepLogControllerTests {
     }
 
     @Test
-    public void createSleepLog_withInvalidUUID_returns400() throws Exception {
+    public void upsertSleepLog_withInvalidUUID_returns400() throws Exception {
         // Arrange
         ObjectNode jsonNode = objectMapper.createObjectNode();
         jsonNode.put("startDateTimeInBed", "2024-09-21T22:00:00");
@@ -84,7 +83,7 @@ public class SleepLogControllerTests {
         String requestBody = objectMapper.writeValueAsString(jsonNode);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", "invalid-uuid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -94,7 +93,7 @@ public class SleepLogControllerTests {
 
     @ParameterizedTest
     @MethodSource("provideInvalidSleepLogRequests")
-    public void createSleepLog_withInvalidData_returns400(
+    public void upsertSleepLog_withInvalidData_returns400(
             LocalDateTime start,
             LocalDateTime end,
             String feeling,
@@ -109,7 +108,7 @@ public class SleepLogControllerTests {
         String requestBody = objectMapper.writeValueAsString(jsonNode);
 
         // Act and assert
-        mvc.perform(post("/api/sleep")
+        mvc.perform(put("/api/sleep")
                         .param("userId", userId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))

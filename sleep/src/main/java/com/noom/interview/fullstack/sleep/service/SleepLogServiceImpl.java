@@ -131,8 +131,8 @@ public class SleepLogServiceImpl implements SleepLogService {
 
         // This is necessary because start date can be after midnight. Calculating a regular
         // average for all times without considering that will cause the average to be incorrect
-        var totalTimeInBedStartInSeconds = (startAverageAfterMidnight / countStartAfterMidnight)
-                + (startAverageBeforeMidnight / countStartBeforeMidnight);
+        var totalTimeInBedStartInSeconds = (startAverageAfterMidnight / (countStartAfterMidnight == 0 ? 1 : countStartAfterMidnight))
+                + (startAverageBeforeMidnight / (countStartBeforeMidnight == 0 ? 1 : countStartBeforeMidnight));
 
         // If the total of seconds is greater than the seconds of a day, it means the average is after
         // midnight

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleException(MethodArgumentNotValidException ex) {
         List<String> errorMessages = ex.getBindingResult()
                 .getFieldErrors()
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessages);
     }
 
-    @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleException(MethodArgumentTypeMismatchException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, Collections.singletonList(ex.getMostSpecificCause().getMessage()));
     }
